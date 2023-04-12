@@ -1,12 +1,12 @@
 # Book Recommendation
+### 책에 대한 유저의 선호도(평점) 예측
 
-사용자의 책 평점 데이터를 바탕으로 사용자가 어떤 책을 더 선호할지 예측하는 프로젝트이다. 책 한권을 모두 읽기 위해서는 보다 긴 물리적인 시간을 필요로 한다. 또한 소비자 입장에서는 제목, 저자, 표지, 카테고리 등 한정된 정보로 각자가 콘텐츠를 유추하고 구매 유무를 결정해야 하기 때문에 상대적으로 선택에 더욱 신중을 가하게 된다.
+| 항목 | 설명 |
+| --- | --- |
+| 활용 장비 및 재료 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| • 서버: Tesla V100, 88GB RAM Server<br>• 개발 IDE: Jupyter Notebook, VS Code<br>• 협업 Tool: Notion, Slack, Zoom |
+| Metric | RMSE Score |
+| Dataset | • books.csv : 149,570개의 책(item)에 대한 정보를 담고 있는 메타데이터<br>• users.csv : 68,092명의 고객(user)에 대한 정보를 담고 있는 메타데이터<br>• train_ratings.csv : 59,803명의 사용자(user)가 129,777개의 책(item)에 대해 남긴 306,795건의 평점(rating) 데이터 <br>https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset|
 
-이러한 소비자들의 책 구매 결정에 대한 도움을 주고자 한다. 사용자의 책 평점 데이터를 바탕으로 사용자가 어떤 책을 더 선호할지 예측하는 모델을 구축 한다.
-
-책에 대한 메타 데이터인 books, 고객에 대한 메타 데이터인 users, 고객이 책에 남긴 평점 ratings 의 데이터 셋을 활용해, 최종적으로 1과 10 사이 평점을 예측하는 것을 목적으로 한다.
-
-(데이터셋 출처: https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset)
 
 # Project architecture
 
@@ -26,6 +26,16 @@
 ```
 
 ```
+```
+pip install -r requirements.txt
+```
+
+- train & Inference : `main.py`
+
+```
+python main.py --MODEL FM --DATA_PATH data
+```
+
 
 # Reference
 
@@ -35,4 +45,8 @@
 - [DeepCoNN](https://arxiv.org/abs/1701.04783)
 
 # Contributors
-
+- 김지연
+- 음이레
+- 오승민
+- 조재오
+- 윤한나
