@@ -11,14 +11,25 @@
 # Project architecture
 
 ```
-├─src
-	├─data
-	├─ensembles
-	├─models
-	├─utils.py
-├─main.py
-├─ensemble.py
-├─requirements.txt
+├── main.py
+├── src
+│   ├── data
+│   │   ├── context_data.py
+│   │   ├── dl_data.py
+│   │   ├── image_data.py
+│   │   └── text_data.py
+│   ├── models 
+│   │   ├── CNN_FM # 파일 구조 상 표시 생략
+│   │   ├── DCN
+│   │   ├── DeepCoNN
+│   │   ├── FFM
+│   │   ├── FM
+│   │   ├── NCF
+│   │   └── WDN
+│   ├── train
+│   │   └── trainer.py
+│   └── utils.py
+└── ensemble.py
 ```
 
 # Environment Requirements
