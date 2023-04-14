@@ -19,7 +19,7 @@
 │   │   ├── image_data.py
 │   │   └── text_data.py
 │   ├── models 
-│   │   ├── CNN_FM # 파일 구조 상 표시 생략
+│   │   ├── CNN_FM
 │   │   ├── DCN
 │   │   ├── DeepCoNN
 │   │   ├── FFM
@@ -38,13 +38,13 @@
 
 ```
 ```
-pip install -r requirements.txt
+pip install -r requirement.txt
 ```
 
 - train & Inference : `main.py`
 
 ```
-python main.py --MODEL FM --DATA_PATH data
+python main.py --MODEL FM
 ```
 
 
