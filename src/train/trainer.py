@@ -1,6 +1,7 @@
 import os
 import tqdm
 import torch
+import wandb
 import torch.nn as nn
 from torch.nn import MSELoss
 from torch.optim import SGD, Adam
@@ -18,6 +19,18 @@ class RMSELoss(nn.Module):
 
 def train(args, model, dataloader, logger, setting):
     minimum_loss = 999999999
+
+    wandb.init(
+            # set the wandb project where this run will be logged
+            project="a-family-of-five",
+            # track hyperparameters and run metadata
+            config={
+            "learning_rate": args.lr,
+            "architecture": model,
+            "epochs": args.epochs,
+            }
+        )
+    
     if args.loss_fn == 'MSE':
         loss_fn = MSELoss()
     elif args.loss_fn == 'RMSE':
@@ -30,7 +43,7 @@ def train(args, model, dataloader, logger, setting):
         optimizer = Adam(model.parameters(), lr=args.lr)
     else:
         pass
-
+    
     for epoch in tqdm.tqdm(range(args.epochs)):
         model.train()
         total_loss = 0
@@ -52,11 +65,13 @@ def train(args, model, dataloader, logger, setting):
             batch +=1
         valid_loss = valid(args, model, dataloader, loss_fn)
         print(f'Epoch: {epoch+1}, Train_loss: {total_loss/batch:.3f}, valid_loss: {valid_loss:.3f}')
+        wandb.log({"train_loss":total_loss/batch , "valid_loss": valid_loss})
         logger.log(epoch=epoch+1, train_loss=total_loss/batch, valid_loss=valid_loss)
         if minimum_loss > valid_loss:
             minimum_loss = valid_loss
             os.makedirs(args.saved_model_path, exist_ok=True)
             torch.save(model.state_dict(), f'{args.saved_model_path}/{setting.save_time}_{args.model}_model.pt')
+    wandb.finish()
     logger.close()
     return model
 
