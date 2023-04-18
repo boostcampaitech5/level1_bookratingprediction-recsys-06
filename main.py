@@ -93,6 +93,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='parser')
     arg = parser.add_argument
 
+    ############### DATA OPTION
+    arg('--flag', type=bool, default=True, help='수정된 데이터 사용여부를 설정할 수 있습니다.')
+
 
     ############### BASIC OPTION
     arg('--data_path', type=str, default='/opt/ml/data/', help='Data path를 설정할 수 있습니다.')
@@ -112,6 +115,7 @@ if __name__ == "__main__":
     arg('--loss_fn', type=str, default='RMSE', choices=['MSE', 'RMSE'], help='손실 함수를 변경할 수 있습니다.')
     arg('--optimizer', type=str, default='ADAM', choices=['SGD', 'ADAM'], help='최적화 함수를 변경할 수 있습니다.')
     arg('--weight_decay', type=float, default=1e-6, help='Adam optimizer에서 정규화에 사용하는 값을 조정할 수 있습니다.')
+    arg('--early_stop', type=int, default=0, help='early stop을 조정할 수 있습니다.')
 
 
     ############### GPU
