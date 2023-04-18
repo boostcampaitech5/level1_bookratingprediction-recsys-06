@@ -34,10 +34,15 @@ def process_context_data(users, books, ratings1, ratings2):
         test 데이터의 rating
     ----------
     """
+    users['location'] = users['location'].str.replace(r'[^0-9a-zA-Z:,]', '') # 특수문자 제거
 
-    users['location_city'] = users['location'].apply(lambda x: x.split(',')[0])
-    users['location_state'] = users['location'].apply(lambda x: x.split(',')[1])
-    users['location_country'] = users['location'].apply(lambda x: x.split(',')[2])
+    users['location_city'] = users['location'].apply(lambda x: x.split(',')[0].strip())
+    users['location_state'] = users['location'].apply(lambda x: x.split(',')[1].strip())
+    users['location_country'] = users['location'].apply(lambda x: x.split(',')[2].strip())
+
+    users = users.replace('na', np.nan)
+    users = users.replace('n/a', np.nan)
+    users = users.replace('', np.nan) 
     users = users.drop(['location'], axis=1)
 
     ratings = pd.concat([ratings1, ratings2]).reset_index(drop=True)

@@ -1,0 +1,6 @@
+submit/
+saved_models/
+.ipynb_checkpoints/
+log/
+wandb/
+text_vector/

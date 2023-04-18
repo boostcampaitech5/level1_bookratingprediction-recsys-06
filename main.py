@@ -3,6 +3,7 @@ import argparse
 import pandas as pd
 from src.utils import Logger, Setting, models_load
 from src.data import context_data_load, context_data_split, context_data_loader
+from src.data import modified_context_data_load
 from src.data import dl_data_load, dl_data_split, dl_data_loader
 from src.data import image_data_load, image_data_split, image_data_loader
 from src.data import text_data_load, text_data_split, text_data_loader
@@ -17,6 +18,8 @@ def main(args):
     print(f'--------------- {args.model} Load Data ---------------')
     if args.model in ('FM', 'FFM'):
         data = context_data_load(args)
+        if args.context_data!='baseline':
+            data = modified_context_data_load(args)
     elif args.model in ('NCF', 'WDN', 'DCN'):
         data = dl_data_load(args)
     elif args.model == 'CNN_FM':
@@ -34,7 +37,6 @@ def main(args):
     if args.model in ('FM', 'FFM'):
         data = context_data_split(args, data)
         data = context_data_loader(args, data)
-
     elif args.model in ('NCF', 'WDN', 'DCN'):
         data = dl_data_split(args, data)
         data = dl_data_loader(args, data)
@@ -104,7 +106,7 @@ if __name__ == "__main__":
     arg('--seed', type=int, default=42, help='seed 값을 조정할 수 있습니다.')
     arg('--use_best_model', type=bool, default=True, help='검증 성능이 가장 좋은 모델 사용여부를 설정할 수 있습니다.')
 
-
+    arg('--context_data',type=str,default='baseline',help='context_data 전처리 파일을 선택할 수 있습니다.')
     ############### TRAINING OPTION
     arg('--batch_size', type=int, default=1024, help='Batch size를 조정할 수 있습니다.')
     arg('--epochs', type=int, default=10, help='Epoch 수를 조정할 수 있습니다.')
