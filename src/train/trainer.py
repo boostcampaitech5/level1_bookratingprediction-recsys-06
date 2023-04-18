@@ -43,8 +43,12 @@ def train(args, model, dataloader, logger, setting):
         optimizer = Adam(model.parameters(), lr=args.lr)
     else:
         pass
-    
+    es = args.early_stop
+    min_it = 0
+
     for epoch in tqdm.tqdm(range(args.epochs)):
+        if (epoch - min_it) > es and es:
+            break
         model.train()
         total_loss = 0
         batch = 0
@@ -68,6 +72,7 @@ def train(args, model, dataloader, logger, setting):
         wandb.log({"train_loss":total_loss/batch , "valid_loss": valid_loss})
         logger.log(epoch=epoch+1, train_loss=total_loss/batch, valid_loss=valid_loss)
         if minimum_loss > valid_loss:
+            min_it = epoch
             minimum_loss = valid_loss
             os.makedirs(args.saved_model_path, exist_ok=True)
             torch.save(model.state_dict(), f'{args.saved_model_path}/{setting.save_time}_{args.model}_model.pt')

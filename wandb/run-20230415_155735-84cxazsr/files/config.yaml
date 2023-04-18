@@ -1,0 +1,53 @@
+wandb_version: 1
+
+learning_rate:
+  desc: null
+  value: 0.0001
+architecture:
+  desc: null
+  value: "FieldAwareFactorizationMachineModel(\n  (linear): FeaturesLinear(\n    (fc):\
+    \ Embedding(309818, 1)\n  )\n  (ffm): FieldAwareFactorizationMachine(\n    (embeddings):\
+    \ ModuleList(\n      (0): Embedding(309818, 16)\n      (1): Embedding(309818,\
+    \ 16)\n      (2): Embedding(309818, 16)\n      (3): Embedding(309818, 16)\n  \
+    \    (4): Embedding(309818, 16)\n      (5): Embedding(309818, 16)\n      (6):\
+    \ Embedding(309818, 16)\n      (7): Embedding(309818, 16)\n      (8): Embedding(309818,\
+    \ 16)\n      (9): Embedding(309818, 16)\n    )\n  )\n)"
+epochs:
+  desc: null
+  value: 30
+_wandb:
+  desc: null
+  value:
+    python_version: 3.8.5
+    cli_version: 0.14.2
+    framework: huggingface
+    huggingface_version: 4.27.4
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1681574255.735741
+    t:
+      1:
+      - 1
+      - 5
+      - 11
+      - 41
+      - 49
+      - 53
+      - 55
+      2:
+      - 1
+      - 5
+      - 11
+      - 41
+      - 49
+      - 53
+      - 55
+      3:
+      - 2
+      - 16
+      - 23
+      4: 3.8.5
+      5: 0.14.2
+      6: 4.27.4
+      8:
+      - 5
