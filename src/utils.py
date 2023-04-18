@@ -7,6 +7,10 @@ import torch.nn as nn
 import logging
 import json
 from .models import *
+import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def rmse(real: list, predict: list) -> float:
     '''
@@ -23,6 +27,14 @@ def rmse(real: list, predict: list) -> float:
     pred = np.array(predict)
     return np.sqrt(np.mean((real-pred) ** 2))
 
+def run_result_show(filename):
+    output = pd.read_csv(filename)
+    # print(len(files), file_list)
+    fig, ax = plt.subplots(figsize=(12, 7))
+    sns.kdeplot(x='rating', data=output,fill=True)
+    # plt.legend(labels=filename)
+    # plt.show()
+    plt.savefig(filename+'.png')
 
 def models_load(args, data):
     '''
@@ -92,7 +104,7 @@ class Setting:
         path = f'./log/{self.save_time}_{args.model}/'
         return path
 
-    def get_submit_filename(self, args):
+    def get_submit_filename(self, args,min_loss):
         '''
         [description]
         submit file을 저장할 경로를 반환하는 함수입니다.
@@ -105,7 +117,7 @@ class Setting:
         이 때, 파일명은 submit/날짜_시간_모델명.csv 입니다.
         '''
         path = self.make_dir("./submit/")
-        filename = f'{path}{self.save_time}_{args.model}.csv'
+        filename = f'{path}{self.save_time}_{args.model}_{round(min_loss,5)}.csv'
         return filename
 
     def make_dir(self,path):

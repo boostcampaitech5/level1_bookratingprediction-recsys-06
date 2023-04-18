@@ -78,7 +78,7 @@ def train(args, model, dataloader, logger, setting):
             torch.save(model.state_dict(), f'{args.saved_model_path}/{setting.save_time}_{args.model}_model.pt')
     wandb.finish()
     logger.close()
-    return model
+    return model,minimum_loss
 
 
 def valid(args, model, dataloader, loss_fn):
@@ -119,3 +119,4 @@ def test(args, model, dataloader, setting):
         y_hat = model(x)
         predicts.extend(y_hat.tolist())
     return predicts
+

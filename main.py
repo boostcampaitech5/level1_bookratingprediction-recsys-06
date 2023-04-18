@@ -1,7 +1,7 @@
 import time
 import argparse
 import pandas as pd
-from src.utils import Logger, Setting, models_load
+from src.utils import Logger, Setting, models_load, run_result_show
 from src.data import context_data_load, context_data_split, context_data_loader
 from src.data import modified_context_data_load
 from src.data import dl_data_load, dl_data_split, dl_data_loader
@@ -68,7 +68,7 @@ def main(args):
 
     ######################## TRAIN
     print(f'--------------- {args.model} TRAINING ---------------')
-    model = train(args, model, data, logger, setting)
+    model,min_loss = train(args, model, data, logger, setting)
 
 
     ######################## INFERENCE
@@ -84,9 +84,9 @@ def main(args):
     else:
         pass
 
-    filename = setting.get_submit_filename(args)
+    filename = setting.get_submit_filename(args,min_loss)
     submission.to_csv(filename, index=False)
-
+    run_result_show(filename)
 
 if __name__ == "__main__":
 
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     arg('--loss_fn', type=str, default='RMSE', choices=['MSE', 'RMSE'], help='손실 함수를 변경할 수 있습니다.')
     arg('--optimizer', type=str, default='ADAM', choices=['SGD', 'ADAM'], help='최적화 함수를 변경할 수 있습니다.')
     arg('--weight_decay', type=float, default=1e-6, help='Adam optimizer에서 정규화에 사용하는 값을 조정할 수 있습니다.')
-    arg('--early_stop', type=int, default=0, help='early stop을 조정할 수 있습니다.')
+    arg('--early_stop', type=int, default=1, help='early stop을 조정할 수 있습니다.')
 
 
     ############### GPU
