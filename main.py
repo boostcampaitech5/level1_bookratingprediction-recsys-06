@@ -1,6 +1,7 @@
 import time
 import argparse
 import pandas as pd
+import numpy as np
 from src.utils import Logger, Setting, models_load, run_result_show
 from src.data import context_data_load, context_data_split, context_data_loader, context_data_stratified_kfold_split
 from src.data import modified_context_data_load
@@ -84,7 +85,8 @@ def main(args):
     logger = Logger(args, log_path)
     logger.save_args()
     
-    predict_avg_result = None
+    predict_avg_result = []
+    valid_loss_avg = 0
     for fold, (train_indices, val_indices) in enumerate(indices):
         print(f'--------------- Fold [{fold+1}/{n_splits}] Running...')
 
@@ -95,16 +97,16 @@ def main(args):
         data['y_train'] = base_data.iloc[train_indices]['rating']
         data['y_valid'] = base_data.iloc[val_indices]['rating']
 
-        train_dataset = TensorDataset(torch.LongTensor(data['X_train'].values), torch.LongTensor(data['y_train'].values))
-        valid_dataset = TensorDataset(torch.LongTensor(data['X_valid'].values), torch.LongTensor(data['y_valid'].values))
-        test_dataset = TensorDataset(torch.LongTensor(data['test'].values))
-
-        train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=args.data_shuffle)
-        valid_dataloader = DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=args.data_shuffle)
-        test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
-
-        data['train_dataloader'], data['valid_dataloader'], data['test_dataloader'] = train_dataloader, valid_dataloader, test_dataloader
-
+        if args.model in ('FM', 'FFM'):
+            data = context_data_loader(args, data)
+        elif args.model in ('NCF', 'WDN', 'DCN'):
+            data = dl_data_loader(args, data)
+        elif args.model=='CNN_FM':
+            data = image_data_loader(args, data)
+        elif args.model=='DeepCoNN':
+            data = text_data_loader(args, data)
+        else:
+            pass
 
         ######################## Model
         print(f'--------------- INIT {args.model} ---------------')
@@ -114,26 +116,30 @@ def main(args):
         ######################## TRAIN
         print(f'--------------- {args.model} TRAINING ---------------')
         model,min_loss = train(args, model, data, logger, setting)
-
+        valid_loss_avg += min_loss
 
         ######################## INFERENCE
         print(f'--------------- {args.model} PREDICT ---------------')
         predicts = test(args, model, data, setting)
         
-        if predict_avg_result == None:
-            predict_avg_result = predicts   # First fold of prediction
+        arr_predicts = np.array(predicts)       # post-processing
+        arr_predicts[arr_predicts < 1] = 1      # max(1,x)
+        arr_predicts[arr_predicts > 10] = 10    # min(x,10)
+        if len(predict_avg_result) == 0:
+            predict_avg_result = arr_predicts   # First fold of prediction
         else:
-            predict_avg_result += predicts  # Add predicts result
+            predict_avg_result += arr_predicts  # Add predicts result
+            
         print(f'--------------- Fold [{fold+1}/{n_splits}] Finish!')
         print(f'--------------------------------------------------')
-    
-    predict_avg_result /= n_splits  # average
+    print(f'valid loss average : {valid_loss_avg / n_splits}')  # average of valid loss
     
     ######################## SAVE PREDICT
     print(f'--------------- SAVE {args.model} PREDICT ---------------')
     submission = pd.read_csv(args.data_path + 'sample_submission.csv')
     if args.model in ('FM', 'FFM', 'NCF', 'WDN', 'DCN', 'CNN_FM', 'DeepCoNN'):
-        submission['rating'] = predicts
+        submission['rating'] = predict_avg_result
+        submission['rating'] /= n_splits    # average
     else:
         pass
 
