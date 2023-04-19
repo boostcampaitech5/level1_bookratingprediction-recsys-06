@@ -2,12 +2,19 @@ import time
 import argparse
 import pandas as pd
 from src.utils import Logger, Setting, models_load, run_result_show
-from src.data import context_data_load, context_data_split, context_data_loader
+from src.data import context_data_load, context_data_split, context_data_loader, context_data_stratified_kfold_split
 from src.data import modified_context_data_load
-from src.data import dl_data_load, dl_data_split, dl_data_loader
-from src.data import image_data_load, image_data_split, image_data_loader
-from src.data import text_data_load, text_data_split, text_data_loader
+from src.data import dl_data_load, dl_data_split, dl_data_loader, dl_data_stratified_kfold_split
+from src.data import image_data_load, image_data_split, image_data_loader, image_data_stratified_kfold_split
+from src.data import text_data_load, text_data_split, text_data_loader, text_data_stratified_kfold_split
 from src.train import train, test
+
+import torch
+from torch.utils.data import TensorDataset, DataLoader, Dataset
+
+
+
+from sklearn.model_selection import StratifiedKFold
 
 
 def main(args):
@@ -34,48 +41,94 @@ def main(args):
 
     ######################## Train/Valid Split
     print(f'--------------- {args.model} Train/Valid Split ---------------')
-    if args.model in ('FM', 'FFM'):
-        data = context_data_split(args, data)
-        data = context_data_loader(args, data)
-    elif args.model in ('NCF', 'WDN', 'DCN'):
-        data = dl_data_split(args, data)
-        data = dl_data_loader(args, data)
 
-    elif args.model=='CNN_FM':
-        data = image_data_split(args, data)
-        data = image_data_loader(args, data)
+    kfold = args.kfold
+    n_splits = args.kfold_n_splits
+    
+    if kfold != 0:
+        # skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=args.seed)
+        if args.model in ('FM', 'FFM'):
+            indices, base_data = context_data_stratified_kfold_split(args, data)
+        elif args.model in ('NCF', 'WDN', 'DCN'):
+            indices, base_data = dl_data_stratified_kfold_split(args, data)
+        elif args.model=='CNN_FM':
+            indices, base_data = image_data_stratified_kfold_split(args, data)
+        elif args.model=='DeepCoNN':
+            indices, base_data = text_data_stratified_kfold_split(args, data)
+        else:
+            pass
 
-    elif args.model=='DeepCoNN':
-        data = text_data_split(args, data)
-        data = text_data_loader(args, data)
-    else:
-        pass
+
+    # if args.model in ('FM', 'FFM'):
+    #     data = context_data_split(args, data)
+    #     data = context_data_loader(args, data)
+    # elif args.model in ('NCF', 'WDN', 'DCN'):
+    #     data = dl_data_split(args, data)
+    #     data = dl_data_loader(args, data)
+
+    # elif args.model=='CNN_FM':
+    #     data = image_data_split(args, data)
+    #     data = image_data_loader(args, data)
+
+    # elif args.model=='DeepCoNN':
+    #     data = text_data_split(args, data)
+    #     data = text_data_loader(args, data)
+    # else:
+    #     pass
 
     ####################### Setting for Log
     setting = Setting()
 
     log_path = setting.get_log_path(args)
     setting.make_dir(log_path)
-
     logger = Logger(args, log_path)
     logger.save_args()
+    
+    predict_avg_result = None
+    for fold, (train_indices, val_indices) in enumerate(indices):
+        print(f'--------------- Fold [{fold+1}/{n_splits}] Running...')
+
+        print('create dataloader')
+
+        data['X_train'] = base_data.iloc[train_indices].drop(['rating'], axis=1)
+        data['X_valid'] = base_data.iloc[val_indices].drop(['rating'], axis=1)
+        data['y_train'] = base_data.iloc[train_indices]['rating']
+        data['y_valid'] = base_data.iloc[val_indices]['rating']
+
+        train_dataset = TensorDataset(torch.LongTensor(data['X_train'].values), torch.LongTensor(data['y_train'].values))
+        valid_dataset = TensorDataset(torch.LongTensor(data['X_valid'].values), torch.LongTensor(data['y_valid'].values))
+        test_dataset = TensorDataset(torch.LongTensor(data['test'].values))
+
+        train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=args.data_shuffle)
+        valid_dataloader = DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=args.data_shuffle)
+        test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
+
+        data['train_dataloader'], data['valid_dataloader'], data['test_dataloader'] = train_dataloader, valid_dataloader, test_dataloader
 
 
-    ######################## Model
-    print(f'--------------- INIT {args.model} ---------------')
-    model = models_load(args,data)
+        ######################## Model
+        print(f'--------------- INIT {args.model} ---------------')
+        model = models_load(args,data)
 
 
-    ######################## TRAIN
-    print(f'--------------- {args.model} TRAINING ---------------')
-    model,min_loss = train(args, model, data, logger, setting)
+        ######################## TRAIN
+        print(f'--------------- {args.model} TRAINING ---------------')
+        model,min_loss = train(args, model, data, logger, setting)
 
 
-    ######################## INFERENCE
-    print(f'--------------- {args.model} PREDICT ---------------')
-    predicts = test(args, model, data, setting)
-
-
+        ######################## INFERENCE
+        print(f'--------------- {args.model} PREDICT ---------------')
+        predicts = test(args, model, data, setting)
+        
+        if predict_avg_result == None:
+            predict_avg_result = predicts   # First fold of prediction
+        else:
+            predict_avg_result += predicts  # Add predicts result
+        print(f'--------------- Fold [{fold+1}/{n_splits}] Finish!')
+        print(f'--------------------------------------------------')
+    
+    predict_avg_result /= n_splits  # average
+    
     ######################## SAVE PREDICT
     print(f'--------------- SAVE {args.model} PREDICT ---------------')
     submission = pd.read_csv(args.data_path + 'sample_submission.csv')
@@ -118,6 +171,11 @@ if __name__ == "__main__":
     arg('--optimizer', type=str, default='ADAM', choices=['SGD', 'ADAM'], help='최적화 함수를 변경할 수 있습니다.')
     arg('--weight_decay', type=float, default=1e-6, help='Adam optimizer에서 정규화에 사용하는 값을 조정할 수 있습니다.')
     arg('--early_stop', type=int, default=1, help='early stop을 조정할 수 있습니다.')
+
+
+    ############### KFold Option
+    arg('--kfold', type=int, default=1, help='KFold Option (0: False, 1:True) -> only StratifiedKFold is supported')
+    arg('--kfold_n_splits', type=int, default=5, help='KFold the number of split')
 
 
     ############### GPU

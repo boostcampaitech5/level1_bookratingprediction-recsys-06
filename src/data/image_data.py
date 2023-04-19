@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader, Dataset
 from torch.autograd import Variable
 from tqdm import tqdm
 import os
+from sklearn.model_selection import StratifiedKFold
 
 class Image_Dataset(Dataset):
     def __init__(self, user_isbn_vector, img_vector, label):
@@ -143,6 +144,20 @@ def image_data_load(args):
             }
     return data
 
+def image_data_stratified_kfold_split(args, data):
+    """
+    Parameters
+    ----------
+    Args : argparse.ArgumentParser
+        test_size : float
+            Train/Valid split 비율을 입력합니다.
+        seed : int
+            seed 값을 입력합니다.
+    ----------
+    """
+    skf = StratifiedKFold(n_splits=args.kfold_n_splits, shuffle=True, random_state=args.seed)
+    indices = skf.split(X=range(len(data['img_train'])), y=data['img_train']['rating'])
+    return indices, data['img_train'][['user_id', 'isbn', 'img_vector','rating']]
 
 def image_data_split(args, data):
     """

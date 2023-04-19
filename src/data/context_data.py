@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader, Dataset
+from sklearn.model_selection import StratifiedKFold
 
 def age_map(x: int) -> int:
     x = int(x)
@@ -153,6 +154,21 @@ def context_data_load(args):
 
 
     return data
+
+def context_data_stratified_kfold_split(args, data):
+    """
+    Parameters
+    ----------
+    Args : argparse.ArgumentParser
+        test_size : float
+            Train/Valid split 비율을 입력합니다.
+        seed : int
+            seed 값을 입력합니다.
+    ----------
+    """
+    skf = StratifiedKFold(n_splits=args.kfold_n_splits, shuffle=True, random_state=args.seed)
+    indices = skf.split(X=range(len(data['train'])), y=data['train']['rating'])
+    return indices, data['train']
 
 
 def context_data_split(args, data):

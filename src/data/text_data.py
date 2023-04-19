@@ -10,7 +10,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 from torch.autograd import Variable
 from transformers import BertModel, BertTokenizer
-
+from sklearn.model_selection import StratifiedKFold
 
 def text_preprocessing(summary):
     """
@@ -253,6 +253,20 @@ def text_data_load(args):
             }
     return data
 
+def text_data_stratified_kfold_split(args, data):
+    """
+    Parameters
+    ----------
+    Args : argparse.ArgumentParser
+        test_size : float
+            Train/Valid split 비율을 입력합니다.
+        seed : int
+            seed 값을 입력합니다.
+    ----------
+    """
+    skf = StratifiedKFold(n_splits=args.kfold_n_splits, shuffle=True, random_state=args.seed)
+    indices = skf.split(X=range(len(data['text_train'])), y=data['text_train']['rating'])
+    return indices, data['text_train'][['user_id', 'isbn', 'user_summary_merge_vector', 'item_summary_vector','rating']]
 
 def text_data_split(args, data):
     """
