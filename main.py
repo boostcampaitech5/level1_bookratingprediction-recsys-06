@@ -90,7 +90,6 @@ def main(args):
 
 if __name__ == "__main__":
 
-
     ######################## BASIC ENVIRONMENT SETUP
     parser = argparse.ArgumentParser(description='parser')
     arg = parser.add_argument
