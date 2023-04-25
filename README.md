@@ -33,10 +33,6 @@
 ```
 
 # Environment Requirements
-
-```
-
-```
 ```
 pip install -r requirement.txt
 ```
@@ -61,3 +57,6 @@ python main.py --MODEL FM
 - 오승민
 - 조재오
 - 윤한나
+
+![image](https://user-images.githubusercontent.com/46878927/234211322-57c3b810-0f95-46e9-9dbf-d20932d43d6a.png)
+
