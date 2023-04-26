@@ -1,4 +1,8 @@
-### Book Recommendation -- 책에 대한 유저의 선호도(평점) 예측
+# Book Recommendation -- 책에 대한 유저의 선호도(평점) 예측
+### Contributors
+| [<img src="https://github.com/ji-yunkim.png" width="100px">](https://github.com/ji-yunkim) | [<img src="https://github.com/YirehEum.png" width="100px">](https://github.com/YirehEum) | [<img src="https://github.com/osmin625.png" width="100px">](https://github.com/osmin625) | [<img src="https://github.com/Grievle.png" width="100px">](https://github.com/Grievle) | [<img src="https://github.com/HannahYun.png" width="100px">](https://github.com/HannahYun) |
+| :--------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------:
+|                          [김지연](https://github.com/ji-yunkim)                           |                            [음이레](https://github.com/YirehEum)                             |                        [오승민](https://github.com/osmin625)                           |                          [조재오](https://github.com/Grievle)                           |                            [윤한나](https://github.com/HannahYun)  
 
 ## 활용 장비 및 재료(개발 환경, 협업 tool 등)
 | 항목 | 설명 |
@@ -10,24 +14,18 @@
 ## Project architecture
 
 ```
+code
 ├── main.py
+├── model_omin
+│   ├── EDA.py
+│   ├── /* baseline_study.py -- removed*/
+│   ├── context_data_modified.py
+│   ├── distribution.ipynb
+│   ├── lgbm.ipynb
+│   ├── minmax_scaler.ipynb
+│   └── rf.ipynb
 ├── src
-│   ├── data
-│   │   ├── context_data.py
-│   │   ├── dl_data.py
-│   │   ├── image_data.py
-│   │   └── text_data.py
-│   ├── models 
-│   │   ├── CNN_FM
-│   │   ├── DCN
-│   │   ├── DeepCoNN
-│   │   ├── FFM
-│   │   ├── FM
-│   │   ├── NCF
-│   │   └── WDN
-│   ├── train
-│   │   └── trainer.py
-│   └── utils.py
+│   / * baseline code -- removed */
 └── ensemble.py
 ```
 
@@ -52,16 +50,3 @@ python main.py --MODEL FM
 - Public 7위 (RMSE: 2.1207) / Private 7위 (RMSE: 2.1159)
 ![image](https://user-images.githubusercontent.com/46878927/234215232-3b8a7c1c-84d0-4ed5-8a06-b8657a4e56c2.png)
 ![image](https://user-images.githubusercontent.com/46878927/234215518-3e24e018-9c21-49e0-b825-9c40453ae81c.png)
-
-# Contributors
-| [<img src="https://github.com/ji-yunkim.png" width="100px">](https://github.com/ji-yunkim) | [<img src="https://github.com/YirehEum.png" width="100px">](https://github.com/YirehEum) | [<img src="https://github.com/osmin625.png" width="100px">](https://github.com/osmin625) | [<img src="https://github.com/Grievle.png" width="100px">](https://github.com/Grievle) | [<img src="https://github.com/HannahYun.png" width="100px">](https://github.com/HannahYun) |
-| :--------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------:
-|                          [김지연](https://github.com/ji-yunkim)                           |                            [음이레](https://github.com/YirehEum)                             |                        [오승민](https://github.com/osmin625)                           |                          [조재오](https://github.com/Grievle)                           |                            [윤한나](https://github.com/HannahYun)  
-
-
-
-# Reference
-- [Factorization Machine](https://ieeexplore.ieee.org/document/5694074)
-- [Field-aware Factorization Machines](https://www.csie.ntu.edu.tw/~cjlin/papers/ffm.pdf)
-- [Neural Collaborotaive Filtering](https://arxiv.org/abs/1708.05031)
-- [DeepCoNN](https://arxiv.org/abs/1701.04783)
